@@ -1,0 +1,33 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Oportunidades', 'jobs', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><span class="eyebrow" th:text="#{jobs.eyebrow}">PIPELINE DE CARREIRA</span><h1 th:text="#{jobs.title}">Oportunidades</h1><p th:text="#{jobs.subtitle}">Uma visão clara de cada vaga no seu radar.</p></div>
+        <a class="button button-primary" th:href="@{/jobs/new}">＋ <span th:text="#{common.add}">Adicionar oportunidade</span></a>
+    </section>
+    <section class="panel">
+        <form class="filters" th:action="@{/jobs}" method="get">
+            <div class="search-field"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg><input name="q" th:value="${q}" th:placeholder="#{jobs.search}" th:aria-label="#{jobs.search}"></div>
+            <select name="status" aria-label="Filtrar por status"><option value="" th:text="#{jobs.allStatuses}">Todos os status</option><option th:each="item : ${statuses}" th:value="${item}" th:text="${item}" th:selected="${status == item.name()}"></option></select>
+            <input name="source" th:value="${source}" th:placeholder="#{jobs.source}" th:aria-label="#{jobs.source}">
+            <select name="sort" aria-label="Ordenar por"><option value="recent" th:selected="${sort == 'recent'}" th:text="#{jobs.sortRecent}">Mais recentes</option><option value="oldest" th:selected="${sort == 'oldest'}" th:text="#{jobs.sortOldest}">Mais antigas</option><option value="score" th:selected="${sort == 'score'}" th:text="#{jobs.sortScore}">Maior compatibilidade</option></select>
+            <button class="button button-secondary" type="submit" th:text="#{jobs.filter}">Filtrar</button>
+        </form>
+        <div class="table-wrap" th:if="${jobs.hasContent()}">
+            <table><thead><tr><th>Oportunidade</th><th>Local</th><th>Origem</th><th>Status</th><th>Compatibilidade</th><th>Adicionada</th><th></th></tr></thead><tbody>
+            <tr th:each="job : ${jobs.content}">
+                <td><a class="job-title-link" th:href="@{/jobs/{id}(id=${job.id})}" th:text="${job.title}">Engenheiro de software</a><small class="table-subtitle" th:text="${job.company}">Empresa</small></td>
+                <td th:text="${job.location ?: '—'}">Remoto</td><td th:text="${job.source ?: 'Manual'}">Manual</td>
+                <td><span class="status-pill" th:classappend="${'status-' + #strings.toLowerCase(job.status)}" th:text="${job.status}">PENDENTE</span></td>
+                <td><span th:if="${job.matchScore != null}" class="score-text" th:text="${#numbers.formatDecimal(job.matchScore, 1, 1) + ' / 5'}">4,2 / 5</span><span th:if="${job.matchScore == null}" class="muted">Sem análise</span></td>
+                <td th:text="${#temporals.format(job.createdAt, 'dd/MM/yyyy')}">01/01/2026</td><td><a class="row-arrow" th:href="@{/jobs/{id}(id=${job.id})}" aria-label="Abrir vaga">↗</a></td>
+            </tr></tbody></table>
+        </div>
+        <div class="empty-state" th:if="${!jobs.hasContent()}"><span class="empty-icon">⌕</span><h3 th:text="#{jobs.empty}">Nenhuma oportunidade encontrada</h3><p th:text="#{jobs.emptyHint}">Experimente ajustar os filtros ou cadastre uma nova vaga.</p><a class="button button-secondary" th:href="@{/jobs/new}" th:text="#{common.add}">Adicionar oportunidade</a></div>
+        <div class="pagination" th:if="${jobs.totalPages > 1}">
+            <span th:text="${'Página ' + (jobs.number + 1) + ' de ' + jobs.totalPages}">Página 1 de 2</span>
+            <div><a class="button button-secondary button-small" th:if="${jobs.hasPrevious()}" th:href="@{/jobs(q=${q},status=${status},source=${source},sort=${sort},page=${jobs.number - 1})}">← Anterior</a>
+                <a class="button button-secondary button-small" th:if="${jobs.hasNext()}" th:href="@{/jobs(q=${q},status=${status},source=${source},sort=${sort},page=${jobs.number + 1})}">Próxima →</a></div>
+        </div>
+    </section>
+</main>
+</div>

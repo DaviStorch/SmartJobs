@@ -1,9 +1,19 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: postgres:17-alpine
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      POSTGRES_DB: ${POSTGRES_DB:-smartjobs}
+      POSTGRES_USER: ${DATABASE_USERNAME:-smartjobs}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-smartjobs}
     ports:
-      - '5432'
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - smartjobs-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-smartjobs} -d ${POSTGRES_DB:-smartjobs}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  smartjobs-postgres:

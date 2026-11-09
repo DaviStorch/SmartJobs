@@ -1,0 +1,31 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Currículos', 'resumes', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><span class="eyebrow" th:text="#{resumes.eyebrow}">SEU PERFIL PROFISSIONAL</span><h1 th:text="#{resumes.title}">Currículos</h1><p th:text="#{resumes.subtitle}">Organize versões diferentes e escolha qual será usada nas análises.</p></div>
+    </section>
+    <section class="resume-layout">
+        <article class="panel">
+            <div class="panel-heading"><div><h2>Suas versões</h2><p th:text="${resumes.size() + ' currículo(s) cadastrado(s)'}">0 currículos</p></div></div>
+            <div class="resume-list" th:if="${!resumes.isEmpty()}">
+                <div class="resume-item" th:each="resume : ${resumes}">
+                    <span class="resume-file-icon">▤</span><div class="resume-item-info"><strong th:text="${resume.name}">Currículo principal</strong><small th:text="${resume.active ? 'Ativo para análise' : 'Versão adicional'}">Ativo</small></div>
+                    <span class="active-pill" th:if="${resume.active}">ATIVO</span><a class="button button-quiet button-small" th:href="@{/resumes/{id}(id=${resume.id})}">Abrir</a>
+                    <form th:if="${!resume.active}" th:action="@{/resumes/{id}/activate(id=${resume.id})}" method="post"><button class="button button-secondary button-small" type="submit">Ativar</button></form>
+                    <form th:action="@{/resumes/{id}/delete(id=${resume.id})}" method="post"><button class="icon-button" type="submit" data-confirm="Excluir esta versão do currículo?" aria-label="Excluir currículo">×</button></form>
+                </div>
+            </div>
+            <div class="empty-state" th:if="${resumes.isEmpty()}"><span class="empty-icon">▤</span><h3>Seu perfil começa aqui</h3><p>Crie um currículo ou importe um PDF para comparar habilidades com os requisitos das vagas.</p></div>
+        </article>
+        <aside class="resume-actions">
+            <article class="panel">
+                <span class="eyebrow">NOVO MÓDULO</span><h2>Criar currículo</h2><p>Comece com seções editáveis e preencha as informações aos poucos.</p>
+                <form th:action="@{/resumes}" method="post" class="form-stack"><label for="resumeName">Nome da versão</label><input id="resumeName" name="name" required maxlength="120" placeholder="Ex.: Produto — 2026"><button class="button button-primary button-wide" type="submit">Criar versão</button></form>
+            </article>
+            <article class="panel">
+                <span class="eyebrow">IMPORTAR PDF</span><h2>Extraia seu currículo</h2><p>A extração preserva o texto encontrado, mas pode não manter a formatação. Revise cada seção depois do envio.</p>
+                <form th:action="@{/resumes/import}" method="post" enctype="multipart/form-data" class="form-stack"><label for="pdfName">Nome da versão</label><input id="pdfName" name="name" required maxlength="120" placeholder="Ex.: Currículo original"><label for="resumePdf">Arquivo PDF (até 5 MB)</label><input id="resumePdf" name="file" type="file" accept="application/pdf,.pdf" required><button class="button button-secondary button-wide" type="submit">Importar e extrair texto</button></form>
+            </article>
+        </aside>
+    </section>
+</main>
+</div>

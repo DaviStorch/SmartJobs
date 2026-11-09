@@ -1,0 +1,35 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(${jobId == null ? 'Nova oportunidade' : 'Editar oportunidade'}, 'jobs', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><span class="eyebrow">OPORTUNIDADES</span><h1 th:text="${jobId == null ? 'Nova oportunidade' : 'Editar oportunidade'}">Nova oportunidade</h1><p>Registre os detalhes para organizar e analisar a vaga.</p></div>
+        <a class="button button-quiet" th:href="@{/jobs}">← Voltar às oportunidades</a>
+    </section>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+    <section class="form-layout">
+        <form class="panel job-form" th:action="${jobId == null ? '/jobs' : '/jobs/' + jobId}" th:object="${form}" method="post">
+            <h2>Informações principais</h2><p class="form-intro">Os campos com * são obrigatórios.</p>
+            <div class="form-grid">
+                <div class="field span-2"><label for="title">Título da vaga *</label><input id="title" th:field="*{title}" required maxlength="180" placeholder="Ex.: Analista de dados"><small class="field-error" th:errors="*{title}"></small></div>
+                <div class="field"><label for="company">Empresa *</label><input id="company" th:field="*{company}" required maxlength="160" placeholder="Nome da empresa"><small class="field-error" th:errors="*{company}"></small></div>
+                <div class="field"><label for="location">Localização</label><input id="location" th:field="*{location}" maxlength="160" placeholder="Cidade ou remoto"></div>
+                <div class="field"><label for="workMode">Modalidade</label><select id="workMode" th:field="*{workMode}"><option value="">Selecione</option><option value="Remoto">Remoto</option><option value="Híbrido">Híbrido</option><option value="Presencial">Presencial</option></select></div>
+                <div class="field"><label for="contractType">Tipo de contratação</label><input id="contractType" th:field="*{contractType}" maxlength="80" placeholder="CLT, PJ, estágio..."></div>
+                <div class="field"><label for="experienceLevel">Nível de experiência</label><input id="experienceLevel" th:field="*{experienceLevel}" maxlength="80" placeholder="Júnior, pleno, sênior..."></div>
+                <div class="field"><label for="salary">Faixa salarial</label><input id="salary" th:field="*{salary}" maxlength="120" placeholder="Opcional"></div>
+                <div class="field"><label for="publishedAt">Data de publicação</label><input id="publishedAt" type="date" th:field="*{publishedAt}"></div>
+                <div class="field"><label for="source">Origem</label><input id="source" th:field="*{source}" maxlength="100" placeholder="LinkedIn, indicação..."></div>
+                <div class="field"><label for="sourceUrl">Link original</label><input id="sourceUrl" type="url" th:field="*{sourceUrl}" maxlength="1000" placeholder="https://..."><small class="field-error" th:errors="*{sourceUrl}"></small></div>
+                <div class="field"><label for="status">Status</label><select id="status" th:field="*{status}"><option th:each="item : ${statuses}" th:value="${item}" th:text="${item}"></option></select></div>
+                <div class="field span-2"><label for="description">Descrição</label><textarea id="description" th:field="*{description}" rows="5" maxlength="20000" placeholder="Responsabilidades, contexto e detalhes da vaga..."></textarea></div>
+                <div class="field"><label for="requirements">Requisitos</label><textarea id="requirements" th:field="*{requirements}" rows="5" maxlength="10000" placeholder="Separe cada requisito por linha ou vírgula."></textarea><small>A análise compara esses itens com o currículo ativo.</small></div>
+                <div class="field"><label for="benefits">Benefícios</label><textarea id="benefits" th:field="*{benefits}" rows="5" maxlength="10000" placeholder="Benefícios informados pela empresa..."></textarea></div>
+                <div class="field span-2"><label for="notes">Anotações pessoais</label><textarea id="notes" th:field="*{notes}" rows="3" maxlength="10000" placeholder="Perguntas para a entrevista, pessoas de contato, próximos passos..."></textarea></div>
+            </div>
+            <div class="form-actions"><a class="button button-quiet" th:href="@{/jobs}">Cancelar</a><button type="submit" class="button button-primary">Salvar oportunidade</button></div>
+        </form>
+        <aside class="panel paste-panel"><span class="eyebrow">IMPORTAÇÃO ASSISTIDA</span><h3>Cole o texto da vaga</h3><p>O sistema usa a primeira linha como título provisório e mantém o texto completo para você revisar. Nenhum dado é adivinhado.</p>
+            <form th:action="@{/jobs/import}" method="post"><textarea name="pastedText" rows="9" maxlength="30000" placeholder="Cole aqui o conteúdo da oportunidade..." required></textarea><button class="button button-secondary button-wide" type="submit">Preencher a partir do texto</button></form>
+        </aside>
+    </section>
+</main>
+</div>

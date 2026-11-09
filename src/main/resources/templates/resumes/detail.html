@@ -1,0 +1,20 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Editar currículo', 'resumes', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><a class="back-link" th:href="@{/resumes}">← Todos os currículos</a><span class="eyebrow">MÓDULOS EDITÁVEIS</span><h1 th:text="${resume.name}">Currículo</h1><p th:text="${resume.active ? 'Este currículo está ativo para as análises.' : 'Ative esta versão para usá-la nas análises de compatibilidade.'}">Currículo ativo</p></div>
+        <form th:if="${!resume.active}" th:action="@{/resumes/{id}/activate(id=${resume.id})}" method="post"><button class="button button-primary" type="submit">Usar nas análises</button></form>
+    </section>
+    <div class="alert alert-info"><strong>Importante:</strong> o SmartJobs não inventa dados. O conteúdo extraído de PDF fica no módulo próprio para você revisar e distribuir nas seções corretas.</div>
+    <section class="resume-section-grid">
+        <article class="panel resume-section-card" th:each="section : ${sections}">
+            <div class="panel-heading"><div><h2 th:text="${section.type.label(currentAccount.language)}">Experiência profissional</h2><p th:text="${section.type == T(com.storch.smartjobs.entity.ResumeSectionType).IMPORTED_TEXT ? 'Texto bruto extraído; a formatação original pode variar.' : 'Edite e salve este módulo individualmente.'}">Seção editável</p></div>
+                <button class="button button-quiet button-small" type="button" data-copy-target th:attr="data-copy-target=${'section-' + section.type.name()}">Copiar</button>
+            </div>
+            <form th:action="@{/resumes/{id}/section/{type}(id=${resume.id},type=${section.type.name()})}" method="post" class="form-stack">
+                <textarea th:id="${'section-' + section.type.name()}" name="content" rows="6" maxlength="30000" th:text="${section.content}" th:placeholder="${section.type == T(com.storch.smartjobs.entity.ResumeSectionType).IMPORTED_TEXT ? 'Nenhum texto foi extraído.' : 'Adicione informações reais sobre esta seção...'}"></textarea>
+                <div class="section-actions"><small>Até 30.000 caracteres</small><button class="button button-secondary button-small" type="submit">Salvar módulo</button></div>
+            </form>
+        </article>
+    </section>
+</main>
+</div>
