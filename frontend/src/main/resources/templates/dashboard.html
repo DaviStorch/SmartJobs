@@ -1,0 +1,41 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(#{nav.dashboard}, 'dashboard', ~{::main})}">
+<main id="main-content">
+    <section class="page-heading">
+        <div><span class="eyebrow" th:text="#{dashboard.eyebrow}">SEU ESPAÇO DE CARREIRA</span><h1 th:text="#{dashboard.greeting(${account.name})}">Bom dia</h1><p th:text="#{dashboard.subtitle}">Acompanhe sua busca e mantenha o foco no próximo passo.</p></div>
+        <a class="button button-primary" th:href="@{/jobs/new}"><span aria-hidden="true">＋</span> <span th:text="#{common.add}">Adicionar oportunidade</span></a>
+    </section>
+    <section class="stat-grid" aria-label="Resumo das oportunidades" th:aria-label="#{dashboard.workspaceSummary}">
+        <article class="stat-card"><div class="stat-top"><span th:text="#{dashboard.total}">Total de vagas</span><span class="stat-icon icon-blue"><svg viewBox="0 0 24 24"><path d="M4 17 10 11l4 4 6-8"/><path d="M15 7h5v5"/></svg></span></div><strong th:text="${stats.total}">0</strong><small th:text="#{dashboard.workspaceCount}">oportunidades no seu workspace</small></article>
+        <article class="stat-card"><div class="stat-top"><span th:text="#{dashboard.pending}">Pendentes</span><span class="stat-icon icon-amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></span></div><strong th:text="${stats.pending}">0</strong><small th:text="#{dashboard.pendingHint}">aguardando uma decisão</small></article>
+        <article class="stat-card"><div class="stat-top"><span th:text="#{dashboard.applied}">Candidaturas</span><span class="stat-icon icon-green"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span></div><strong th:text="${stats.applied}">0</strong><small th:text="#{dashboard.appliedHint}">oportunidades enviadas</small></article>
+        <article class="stat-card"><div class="stat-top"><span th:text="#{dashboard.average}">Compatibilidade média</span><span class="stat-icon icon-violet"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg></span></div><strong><span th:if="${stats.averageScore != null}" th:text="${#numbers.formatDecimal(stats.averageScore, 1, 1)}">0</span><span th:if="${stats.averageScore != null}" class="stat-unit">/ 5</span><span th:if="${stats.averageScore == null}" class="stat-unit">—</span></strong><small th:text="#{dashboard.averageHint}">baseada no currículo ativo</small></article>
+    </section>
+    <section class="dashboard-grid">
+        <article class="panel panel-large">
+            <div class="panel-heading"><div><h2 th:text="#{dashboard.recent}">Adicionadas recentemente</h2><p th:text="#{dashboard.recentHint}">Oportunidades que entraram no seu radar.</p></div><a class="text-link" th:href="@{/jobs}"><span th:text="#{common.viewAll}">Ver todas</span> <span>→</span></a></div>
+            <div class="table-wrap" th:if="${!stats.recentJobs.isEmpty()}">
+                <table><thead><tr><th th:text="#{jobs.columnOpportunity}">Oportunidade</th><th th:text="#{jobs.columnStatus}">Status</th><th th:text="#{jobs.columnScore}">Compatibilidade</th><th></th></tr></thead><tbody>
+                <tr th:each="job : ${stats.recentJobs}">
+                    <td th:data-label="#{jobs.columnOpportunity}"><a class="job-title-link" th:href="@{/jobs/{id}(id=${job.id})}" th:text="${job.title}">Desenvolvedor</a><small class="table-subtitle" th:text="${job.company}">Empresa</small></td>
+                    <td th:data-label="#{jobs.columnStatus}"><span class="status-pill" th:classappend="${'status-' + #strings.toLowerCase(job.status)}" th:text="${#messages.msg('status.' + job.status.name())}">PENDENTE</span></td>
+                    <td th:data-label="#{jobs.columnScore}"><span th:if="${job.matchScore != null}" class="score-text" th:text="${#numbers.formatDecimal(job.matchScore, 1, 1) + ' / 5'}">4,0 / 5</span><span th:if="${job.matchScore == null}" class="muted" th:text="#{dashboard.noScore}">Sem análise</span></td>
+                    <td><a class="row-arrow" th:href="@{/jobs/{id}(id=${job.id})}" aria-label="Ver oportunidade">↗</a></td>
+                </tr></tbody></table>
+            </div>
+            <div class="empty-state" th:if="${stats.recentJobs.isEmpty()}"><span class="empty-icon">↗</span><h3 th:text="#{dashboard.journeyStart}">Sua jornada começa aqui</h3><p th:text="#{dashboard.journeyHint}">Cadastre uma oportunidade para acompanhar status, requisitos e compatibilidade em um só lugar.</p><a class="button button-secondary" th:href="@{/jobs/new}" th:text="#{dashboard.addFirst}">Cadastrar primeira vaga</a></div>
+        </article>
+        <article class="panel panel-top">
+            <div class="panel-heading"><div><h2 th:text="#{dashboard.topMatches}">Melhores compatibilidades</h2><p th:text="#{dashboard.topHint}">Oportunidades que mais se aproximam do seu perfil.</p></div></div>
+            <div class="match-list" th:if="${!stats.topJobs.isEmpty()}">
+                <a class="match-row" th:each="job : ${stats.topJobs}" th:href="@{/jobs/{id}(id=${job.id})}">
+                    <span class="match-avatar" th:text="${#strings.substring(job.company, 0, 1).toUpperCase()}">S</span>
+                    <span class="match-info"><strong th:text="${job.title}">Product designer</strong><small th:text="${job.company}">Studio North</small></span>
+                    <span class="match-score" th:text="${#numbers.formatDecimal(job.matchScore, 1, 1)}">4.8</span>
+                </a>
+            </div>
+            <div class="empty-mini" th:if="${stats.topJobs.isEmpty()}"><span>✳</span><p th:text="#{dashboard.noTopMatches}">A compatibilidade aparece após cadastrar um currículo e oportunidades com requisitos.</p><a th:href="@{/resumes}" th:text="#{dashboard.organizeResume}">Organizar currículo →</a></div>
+            <div class="resume-nudge"><div class="nudge-icon">▤</div><div><strong th:text="${stats.resumeCount == 0 ? #messages.msg('dashboard.resume') : #messages.msg('dashboard.resumeActive')}">Adicione seu currículo</strong><small th:text="#{dashboard.resumeHint}">Para receber análises úteis e explicáveis.</small></div><a th:href="@{/resumes}" aria-label="Currículos">→</a></div>
+        </article>
+    </section>
+</main>
+</div>

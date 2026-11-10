@@ -1,0 +1,53 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(#{application.title}, 'jobs', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><a class="back-link" th:href="@{/jobs/{id}(id=${job.id})}" th:text="'← ' + #{application.back}">← Voltar à oportunidade</a><span class="eyebrow" th:text="#{application.eyebrow}">ASSISTENTE DE CANDIDATURA</span><h1 th:text="${job.title}">Cargo</h1><p th:text="${job.company}">Empresa</p></div>
+    </section>
+    <div class="alert alert-info"><strong th:text="#{application.review}">Você mantém o controle.</strong> <span th:text="#{application.notice}">O SmartJobs organiza seus dados, mas não envia candidaturas nem interage com sites externos.</span></div>
+    <section class="detail-grid">
+        <div class="detail-main">
+            <article class="panel">
+                <div class="panel-heading"><div><h2 th:text="#{application.checklist}">Checklist para revisar</h2><p th:text="#{application.checklistHint}">Use as informações abaixo para preencher o formulário do empregador.</p></div></div>
+                <ul class="application-checklist">
+                    <li th:text="#{application.checkOne}">Compare cada requisito da vaga com sua experiência real.</li>
+                    <li th:text="#{application.checkTwo}">Revise telefone, e-mail e links de contato antes de enviar.</li>
+                    <li th:text="#{application.checkThree}">Não copie informações que não correspondam ao seu histórico profissional.</li>
+                    <li th:text="#{application.checkFour}">Revise todas as respostas no site da empresa antes do envio final.</li>
+                </ul>
+            </article>
+            <article class="panel" th:if="${hasActiveResume}">
+                <div class="panel-heading"><div><h2 th:text="#{application.resume}">Currículo ativo</h2><p th:text="#{application.resumeHint}">Conteúdo privado do seu perfil; revise antes de copiar.</p></div><a class="text-link" th:href="@{/resumes}" th:text="#{application.editResume}">Editar currículo</a></div>
+                <div class="resume-section-grid application-resume-grid">
+                    <div class="application-section" th:each="section : ${resumeSections}" th:if="${!section.content.isBlank() and section.type != T(com.storch.smartjobs.entity.ResumeSectionType).IMPORTED_TEXT}">
+                        <h3 th:text="${section.type.label(currentAccount.language)}">Módulo</h3>
+                        <textarea readonly rows="5" th:text="${section.content}" th:id="${'application-' + section.type.name()}"></textarea>
+                        <button class="button button-quiet button-small" type="button" data-copy-target th:attr="data-copy-target=${'application-' + section.type.name()}">Copiar</button>
+                    </div>
+                </div>
+            </article>
+            <article class="panel" th:unless="${hasActiveResume}">
+                <h2 th:text="#{application.noResume}">Nenhum currículo ativo</h2><p th:text="#{application.noResumeHint}">Ative ou crie uma versão antes de preparar seus dados.</p><a class="button button-secondary" th:href="@{/resumes}" th:text="#{application.manageResume}">Gerenciar currículos</a>
+            </article>
+            <article class="panel">
+                <div class="panel-heading"><div><h2 th:text="#{application.answers}">Revise suas respostas</h2><p th:text="#{application.answersHint}">Rascunhe suas respostas antes de colá-las no portal da empresa.</p></div></div>
+                <div class="form-stack">
+                    <label for="motivation" th:text="#{application.motivation}">Por que esta oportunidade combina com você?</label><textarea id="motivation" rows="4" th:placeholder="#{application.motivationPlaceholder}"></textarea>
+                    <label for="experience" th:text="#{application.experience}">Que experiência relevante você gostaria de destacar?</label><textarea id="experience" rows="4" th:placeholder="#{application.experiencePlaceholder}"></textarea>
+                </div>
+            </article>
+        </div>
+        <aside class="detail-side">
+            <article class="panel">
+                <div class="panel-heading"><div><h2 th:text="#{application.nextStep}">Próximo passo</h2><p th:text="#{application.nextStepHint}">Conclua a candidatura no site original.</p></div></div>
+                <a class="button button-primary button-wide" th:if="${job.sourceUrl}" th:href="${job.sourceUrl}" target="_blank" rel="noopener noreferrer" th:text="#{application.openExternal}">Abrir candidatura externa</a>
+                <p class="muted small-text" th:unless="${job.sourceUrl}" th:text="#{application.noLink}">Esta oportunidade não possui um link de candidatura cadastrado.</p>
+                <p class="muted small-text" th:text="#{application.notConfirmed}">Após enviar a candidatura no portal externo, você pode registrar o status abaixo. O SmartJobs não consegue confirmar o envio.</p>
+                <form th:action="@{/jobs/{id}/status(id=${job.id})}" method="post" class="form-stack">
+                    <input type="hidden" name="status" value="CANDIDATADA">
+                    <button class="button button-secondary button-wide" type="submit" data-confirm-message th:attr="data-confirm=#{application.confirmApplied}" th:text="#{application.markApplied}">Registrar como candidatada</button>
+                </form>
+            </article>
+        </aside>
+    </section>
+</main>
+</div>

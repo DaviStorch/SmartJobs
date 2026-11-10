@@ -1,0 +1,35 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(${jobId == null ? #messages.msg('jobForm.new') : #messages.msg('jobForm.edit')}, 'jobs', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><span class="eyebrow" th:text="#{jobForm.eyebrow}">OPORTUNIDADES</span><h1 th:text="${jobId == null ? #messages.msg('jobForm.new') : #messages.msg('jobForm.edit')}">Nova oportunidade</h1><p th:text="#{jobForm.subtitle}">Registre os detalhes para organizar e analisar a vaga.</p></div>
+        <a class="button button-quiet" th:href="@{/jobs}" th:text="'← ' + #{jobForm.back}">← Voltar às oportunidades</a>
+    </section>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+    <section class="form-layout">
+        <form class="panel job-form" th:action="${jobId == null ? '/jobs' : '/jobs/' + jobId}" th:object="${form}" method="post">
+            <h2 th:text="#{jobForm.main}">Informações principais</h2><p class="form-intro" th:text="#{jobForm.requiredHint}">Os campos com * são obrigatórios.</p>
+            <div class="form-grid">
+                <div class="field span-2"><label for="title" th:text="#{jobForm.title}">Título da vaga *</label><input id="title" th:field="*{title}" required maxlength="180" th:placeholder="#{jobForm.titlePlaceholder}"><small class="field-error" th:errors="*{title}"></small></div>
+                <div class="field"><label for="company" th:text="#{jobForm.company}">Empresa *</label><input id="company" th:field="*{company}" required maxlength="160" th:placeholder="#{jobForm.companyPlaceholder}"><small class="field-error" th:errors="*{company}"></small></div>
+                <div class="field"><label for="location" th:text="#{jobForm.location}">Localização</label><input id="location" th:field="*{location}" maxlength="160" th:placeholder="#{jobForm.locationPlaceholder}"></div>
+                <div class="field"><label for="workMode" th:text="#{jobForm.workMode}">Modalidade</label><select id="workMode" th:field="*{workMode}"><option value="" th:text="#{jobForm.select}">Selecione</option><option value="Remoto" th:text="#{jobForm.remote}">Remoto</option><option value="Híbrido" th:text="#{jobForm.hybrid}">Híbrido</option><option value="Presencial" th:text="#{jobForm.onsite}">Presencial</option></select></div>
+                <div class="field"><label for="contractType" th:text="#{jobForm.contract}">Tipo de contratação</label><input id="contractType" th:field="*{contractType}" maxlength="80" th:placeholder="#{jobForm.contractPlaceholder}"></div>
+                <div class="field"><label for="experienceLevel" th:text="#{jobForm.experience}">Nível de experiência</label><input id="experienceLevel" th:field="*{experienceLevel}" maxlength="80" th:placeholder="#{jobForm.experiencePlaceholder}"></div>
+                <div class="field"><label for="salary" th:text="#{jobForm.salary}">Faixa salarial</label><input id="salary" th:field="*{salary}" maxlength="120" th:placeholder="#{jobForm.optional}"></div>
+                <div class="field"><label for="publishedAt" th:text="#{jobForm.published}">Data de publicação</label><input id="publishedAt" type="date" th:field="*{publishedAt}"></div>
+                <div class="field"><label for="source" th:text="#{jobForm.source}">Origem</label><input id="source" th:field="*{source}" maxlength="100" th:placeholder="#{jobForm.sourcePlaceholder}"></div>
+                <div class="field"><label for="sourceUrl" th:text="#{jobForm.url}">Link original</label><input id="sourceUrl" type="url" th:field="*{sourceUrl}" maxlength="1000" placeholder="https://..."><small class="field-error" th:errors="*{sourceUrl}"></small></div>
+                <div class="field"><label for="status" th:text="#{jobForm.status}">Status</label><select id="status" th:field="*{status}"><option th:each="item : ${statuses}" th:value="${item}" th:text="${#messages.msg('status.' + item.name())}"></option></select></div>
+                <div class="field span-2"><label for="description" th:text="#{jobForm.description}">Descrição</label><textarea id="description" th:field="*{description}" rows="5" maxlength="20000" th:placeholder="#{jobForm.descriptionPlaceholder}"></textarea></div>
+                <div class="field"><label for="requirements" th:text="#{jobForm.requirements}">Requisitos</label><textarea id="requirements" th:field="*{requirements}" rows="5" maxlength="10000" th:placeholder="#{jobForm.requirementsPlaceholder}"></textarea><small th:text="#{jobForm.requirementsHint}">A análise compara esses itens com o currículo ativo.</small></div>
+                <div class="field"><label for="benefits" th:text="#{jobForm.benefits}">Benefícios</label><textarea id="benefits" th:field="*{benefits}" rows="5" maxlength="10000" th:placeholder="#{jobForm.benefitsPlaceholder}"></textarea></div>
+                <div class="field span-2"><label for="notes" th:text="#{jobForm.notes}">Anotações pessoais</label><textarea id="notes" th:field="*{notes}" rows="3" maxlength="10000" th:placeholder="#{jobForm.notesPlaceholder}"></textarea></div>
+            </div>
+            <div class="form-actions"><a class="button button-quiet" th:href="@{/jobs}" th:text="#{jobForm.cancel}">Cancelar</a><button type="submit" class="button button-primary" th:text="#{jobForm.save}">Salvar oportunidade</button></div>
+        </form>
+        <aside class="panel paste-panel"><span class="eyebrow" th:text="#{jobForm.importEyebrow}">IMPORTAÇÃO ASSISTIDA</span><h3 th:text="#{jobForm.pasteTitle}">Cole o texto da vaga</h3><p th:text="#{jobForm.pasteHint}">O sistema usa a primeira linha como título provisório e mantém o texto completo para você revisar. Nenhum dado é adivinhado.</p>
+            <form th:action="@{/jobs/import}" method="post"><textarea name="pastedText" rows="9" maxlength="30000" th:placeholder="#{jobForm.pastePlaceholder}" required></textarea><button class="button button-secondary button-wide" type="submit" th:text="#{jobForm.pasteButton}">Preencher a partir do texto</button></form>
+        </aside>
+    </section>
+</main>
+</div>

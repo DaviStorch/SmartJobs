@@ -1,6 +1,0 @@
-<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Não foi possível concluir', '', ~{::main})}">
-<main class="error-page">
-    <span class="eyebrow" th:text="${'ERRO ' + status}">ERRO</span><h1>Não foi possível concluir</h1>
-    <p th:text="${message}">Ocorreu um erro.</p><a class="button button-primary" th:href="@{/}">Voltar ao início</a>
-</main>
-</div>

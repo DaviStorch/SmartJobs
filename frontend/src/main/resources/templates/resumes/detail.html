@@ -1,0 +1,21 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(#{resume.detailTitle}, 'resumes', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><a class="back-link" th:href="@{/resumes}" th:text="'← ' + #{resume.back}">← Todos os currículos</a><span class="eyebrow" th:text="#{resume.eyebrow}">MÓDULOS EDITÁVEIS</span><h1 th:text="${resume.name}">Currículo</h1><p th:text="${resume.active ? #messages.msg('resume.active') : #messages.msg('resume.inactive')}">Currículo ativo</p></div>
+        <form th:if="${!resume.active}" th:action="@{/resumes/{id}/activate(id=${resume.id})}" method="post"><button class="button button-primary" type="submit" th:text="#{resume.activate}">Usar nas análises</button></form>
+    </section>
+    <div class="alert alert-info"><strong th:text="#{resume.noticeTitle}">Importante:</strong> <span th:text="#{resume.notice}">revise os módulos e salve as alterações. O SmartJobs não inventa dados.</span></div>
+    <form th:action="@{/resumes/{id}/save(id=${resume.id})}" method="post" class="form-stack" data-dirty-form>
+        <section class="resume-section-grid">
+            <article class="panel resume-section-card" th:each="section : ${sections}">
+                <div class="panel-heading"><div><h2 th:text="${section.type.label(currentAccount.language)}">Experiência profissional</h2><p th:text="${section.type == T(com.storch.smartjobs.entity.ResumeSectionType).IMPORTED_TEXT ? #messages.msg('resume.rawHint') : #messages.msg('resume.editHint')}">Seção editável</p></div>
+                    <button class="button button-quiet button-small" type="button" data-copy-target th:attr="data-copy-target=${'section-' + section.type.name()}" th:text="#{common.copy}">Copiar</button>
+                </div>
+                <textarea th:id="${'section-' + section.type.name()}" th:name="${'section_' + section.type.name()}" rows="6" maxlength="30000" th:text="${section.content}" th:placeholder="${section.type == T(com.storch.smartjobs.entity.ResumeSectionType).IMPORTED_TEXT ? #messages.msg('resume.rawEmpty') : #messages.msg('resume.addInfo')}" data-track-dirty></textarea>
+                <div class="section-actions"><small th:text="#{resume.maxLength}">Até 30.000 caracteres</small><button class="button button-secondary button-small" type="submit" name="saveType" th:value="${section.type.name()}" th:text="#{resume.saveSection}">Salvar módulo</button></div>
+            </article>
+        </section>
+        <div class="section-actions sticky-save-bar"><button class="button button-quiet" type="button" data-cancel-edits th:text="#{resume.cancelChanges}">Cancelar alterações</button><button class="button button-primary" type="submit" th:text="#{resume.saveAll}">Salvar todos os módulos</button></div>
+    </form>
+</main>
+</div>

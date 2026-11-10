@@ -1,0 +1,77 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Detalhes da oportunidade', 'jobs', ~{::main})}">
+<main>
+    <div th:if="${success}" class="inline-success" th:text="${success}"></div>
+    <section class="page-heading detail-heading">
+        <div><a class="back-link" th:href="@{/jobs}">← Todas as oportunidades</a><span class="eyebrow" th:text="${job.company}">Empresa</span><h1 th:text="${job.title}">Título da oportunidade</h1>
+            <div class="detail-meta"><span th:if="${job.location}" th:text="${job.location}">São Paulo</span><span th:if="${job.workMode}" th:text="${job.workMode}">Híbrido</span><span th:if="${job.contractType}" th:text="${job.contractType}">CLT</span></div></div>
+        <div class="heading-actions"><a class="button button-secondary" th:href="@{/jobs/{id}/application(id=${job.id})}">Preparar candidatura</a><a class="button button-secondary" th:href="@{/jobs/{id}/edit(id=${job.id})}">Editar</a>
+            <form th:action="@{/jobs/{id}/delete(id=${job.id})}" method="post"><button class="button button-danger" type="submit" data-confirm="Tem certeza de que deseja excluir esta oportunidade?">Excluir</button></form></div>
+    </section>
+    <section class="detail-grid">
+        <div class="detail-main">
+            <article class="panel">
+                <div class="panel-heading"><div><h2>Sobre a oportunidade</h2><p>Descrição e informações compartilhadas pela empresa.</p></div><span class="status-pill" th:classappend="${'status-' + #strings.toLowerCase(job.status)}" th:text="${#messages.msg('status.' + job.status.name())}">PENDENTE</span></div>
+                <div class="detail-facts">
+                    <div><small>Localização</small><strong th:text="${job.location ?: 'Não informada'}">Remoto</strong></div>
+                    <div><small>Faixa salarial</small><strong th:text="${job.salary ?: 'Não informada'}">A combinar</strong></div>
+                    <div><small>Nível</small><strong th:text="${job.experienceLevel ?: 'Não informado'}">Pleno</strong></div>
+                    <div><small>Origem</small><strong th:text="${job.source ?: 'Cadastro manual'}">LinkedIn</strong></div>
+                    <div><small>Publicada em</small><strong th:text="${job.publishedAt != null ? #temporals.format(job.publishedAt, 'dd/MM/yyyy') : 'Não informada'}">—</strong></div>
+                    <div><small>Cadastrada em</small><strong th:text="${#temporals.format(job.createdAt, 'dd/MM/yyyy')}">—</strong></div>
+                </div>
+                <div class="prose-block"><h3>Descrição</h3><p class="preserve-lines" th:text="${job.description ?: 'Descrição não informada.'}">Descrição</p></div>
+                <div class="prose-block" th:if="${job.requirements}"><h3>Requisitos</h3><p class="preserve-lines" th:text="${job.requirements}"></p></div>
+                <div class="prose-block" th:if="${job.benefits}"><h3>Benefícios</h3><p class="preserve-lines" th:text="${job.benefits}"></p></div>
+                <a class="button button-primary" th:if="${job.sourceUrl}" th:href="${job.sourceUrl}" target="_blank" rel="noopener noreferrer">Abrir oportunidade original <span aria-hidden="true">↗</span></a>
+                <p class="muted small-text" th:if="${job.sourceUrl == null}">Nenhum link original foi informado.</p>
+            </article>
+            <article class="panel analysis-panel">
+                <div class="panel-heading"><div><span class="eyebrow">ANÁLISE EXPLICÁVEL</span><h2>Compatibilidade com seu currículo</h2><p>Comparação determinística dos requisitos informados com o currículo ativo.</p></div>
+                    <div class="score-badge" th:if="${analysis.score != null}"><strong th:text="${#numbers.formatDecimal(analysis.score, 1, 1)}">0.0</strong><small>/ 5</small></div>
+                </div>
+                <div class="no-analysis" th:if="${!analysis.resumeAvailable}"><span class="empty-icon">▤</span><h3>Complete ou ative um currículo</h3><p th:text="${analysis.rationale}">Adicione conteúdo ao currículo.</p><a class="text-link" th:href="@{/resumes}">Gerenciar currículos →</a></div>
+                <div th:if="${analysis.resumeAvailable}">
+                    <div class="recommendation-callout" th:classappend="${'recommendation-' + #strings.toLowerCase(analysis.recommendation)}">
+                        <div><small>RECOMENDAÇÃO</small><strong th:text="${#messages.msg('recommendation.' + analysis.recommendation.name())}">CONSIDERAR</strong></div>
+                        <p th:text="${analysis.rationale}">Justificativa</p>
+                    </div>
+                    <div class="assessment-list" th:if="${!analysis.requirements.isEmpty()}">
+                        <h3>Requisitos avaliados</h3>
+                        <div class="assessment-row" th:each="item : ${analysis.requirements}">
+                            <span class="assessment-indicator" th:classappend="${'assessment-' + #strings.toLowerCase(item.status)}"></span>
+                            <span th:text="${item.requirement}">Java</span>
+                            <span class="assessment-label" th:text="${#messages.msg('analysis.status.' + item.status.name())}">Atendido</span>
+                        </div>
+                    </div>
+                    <div class="empty-mini" th:if="${analysis.requirements.isEmpty()}"><p>Esta vaga não tem requisitos estruturados; a nota zero indica ausência de dados, não falta de competência.</p></div>
+                    <div class="analysis-columns"><div><h3>Pontos alinhados</h3><p th:if="${analysis.positives.isEmpty()}" class="muted">Nenhum requisito foi identificado como atendido.</p><ul><li th:each="item : ${analysis.positives}" th:text="${item}"></li></ul></div>
+                        <div><h3>Para revisar</h3><p th:if="${analysis.negatives.isEmpty()}" class="muted">Nenhum requisito não identificado.</p><ul><li th:each="item : ${analysis.negatives}" th:text="${item}"></li></ul></div></div>
+                    <div class="suggestion-box" th:if="${!analysis.suggestions.isEmpty()}"><h3>Sugestões</h3><ul><li th:each="item : ${analysis.suggestions}" th:text="${item}"></li></ul></div>
+                    <form th:if="${aiEnabled}" th:action="@{/jobs/{id}/ai-advice(id=${job.id})}" method="post">
+                        <button class="button button-secondary" type="submit">Gerar explicação com IA</button>
+                    </form>
+                </div>
+            </article>
+            <article class="panel" th:if="${aiAdvice}">
+                <div class="panel-heading"><div><h2 th:text="${aiAvailable ? 'Explicação assistida por IA' : 'Análise determinística'}">Explicação assistida</h2><p th:text="${aiNotice}">A pontuação permanece calculada pelo algoritmo do SmartJobs.</p></div></div>
+                <p class="preserve-lines" th:text="${aiAdvice}">Sugestões da IA</p>
+            </article>
+        </div>
+        <aside class="detail-side">
+            <article class="panel"><div class="panel-heading"><div><h2>Etapa atual</h2><p>Mantenha seu processo atualizado.</p></div></div>
+                <form th:action="@{/jobs/{id}/status(id=${job.id})}" method="post" class="form-stack">
+                    <label for="status">Status da candidatura</label><select name="status" id="status"><option th:each="item : ${statuses}" th:value="${item}" th:text="${#messages.msg('status.' + item.name())}" th:selected="${job.status == item}"></option></select>
+                    <button class="button button-secondary button-wide" type="submit">Atualizar status</button>
+                </form>
+            </article>
+            <article class="panel"><div class="panel-heading"><div><h2>Anotações</h2><p>Somente você pode visualizar.</p></div></div>
+                <form th:action="@{/jobs/{id}/notes(id=${job.id})}" method="post" class="form-stack">
+                    <textarea name="notes" rows="7" maxlength="10000" placeholder="Registre suas observações..." th:text="${job.notes}"></textarea>
+                    <button class="button button-secondary button-wide" type="submit">Salvar anotações</button>
+                </form>
+            </article>
+            <div class="privacy-note"><span>◇</span> Seus dados e anotações são privados.</div>
+        </aside>
+    </section>
+</main>
+</div>

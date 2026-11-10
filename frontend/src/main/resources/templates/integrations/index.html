@@ -1,0 +1,23 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(#{integration.title}, 'integrations', ~{::main})}">
+<main>
+    <section class="page-heading"><div><span class="eyebrow" th:text="#{integration.eyebrow}">CONTAS CONECTADAS</span><h1 th:text="#{integration.title}">Integrações</h1><p th:text="#{integration.subtitle}">Conecte serviços explicitamente e controle seus acessos.</p></div></section>
+    <article class="panel integration-card">
+        <div class="panel-heading"><div><span class="eyebrow" th:text="#{integration.email}">E-MAIL</span><h2 th:text="#{integration.gmail}">Gmail</h2><p th:text="#{integration.gmailHint}">Busca limitada a alertas de emprego recentes; o app não lê indiscriminadamente sua caixa de entrada.</p></div>
+            <span class="active-pill" th:if="${gmailConnection != null}" th:text="#{integration.connected}">CONECTADO</span><span class="status-pill" th:unless="${gmailConnection != null}" th:text="#{integration.disconnected}">DESCONECTADO</span>
+        </div>
+        <div class="alert alert-info" th:unless="${gmailConfigured}" th:text="#{integration.configure}">Configure Google OAuth e a chave de criptografia antes de conectar. Os tokens são armazenados cifrados no banco.</div>
+        <div th:if="${gmailConnection != null}">
+            <p><span th:text="#{integration.account}">Conta:</span> <strong th:text="${gmailConnection.connectedEmail}">conta Gmail</strong></p>
+            <p class="muted small-text" th:text="${gmailConnection.lastSyncedAt != null ? #messages.msg('integration.lastSynced', #temporals.format(gmailConnection.lastSyncedAt, 'dd/MM/yyyy HH:mm')) : #messages.msg('integration.neverSynced')}">Última sincronização</p>
+            <div class="heading-actions">
+                <form th:action="@{/integrations/gmail/sync}" method="post"><button class="button button-primary" type="submit" th:text="#{integration.sync}">Sincronizar oportunidades</button></form>
+                <form th:action="@{/integrations/gmail/disconnect}" method="post"><button class="button button-danger" type="submit" th:attr="data-confirm=#{integration.disconnectConfirm}" th:text="#{integration.disconnect}">Desconectar</button></form>
+            </div>
+        </div>
+        <form th:if="${gmailConnection == null and gmailConfigured}" th:action="@{/integrations/gmail/connect}" method="post">
+            <p th:text="#{integration.permission}">Será solicitada somente a permissão Gmail de leitura. Você revisará os dados antes de continuar a usá-los.</p>
+            <button class="button button-primary" type="submit" th:text="#{integration.connect}">Conectar conta Google</button>
+        </form>
+    </article>
+</main>
+</div>

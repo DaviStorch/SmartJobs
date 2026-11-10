@@ -1,0 +1,19 @@
+<div xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(#{resume.previewTitle}, 'resumes', ~{::main})}">
+<main>
+    <section class="page-heading">
+        <div><a class="back-link" th:href="@{/resumes}" th:text="'← ' + #{resume.back}">← Todos os currículos</a><span class="eyebrow" th:text="#{resume.previewEyebrow}">REVISÃO ANTES DE SALVAR</span><h1 th:text="#{resume.previewTitle}">Revise os módulos</h1><p th:text="#{resume.previewHint}">Confira cada campo. O texto extraído pode conter erros e nenhum dado ausente foi inventado.</p></div>
+    </section>
+    <div class="alert alert-info" th:if="${draft.warning() != null}" th:text="${draft.warning()}">Aviso da extração</div>
+    <form th:action="@{/resumes/import/save}" method="post" class="form-stack" data-dirty-form>
+        <label for="importResumeName">Nome desta versão</label>
+        <input id="importResumeName" name="name" maxlength="120" required th:value="${name}">
+        <section class="resume-section-grid">
+            <article class="panel resume-section-card" th:each="section : ${draft.sections()}">
+                <div class="panel-heading"><div><h2 th:text="${T(com.storch.smartjobs.entity.ResumeSectionType).valueOf(section.key).label(currentAccount.language)}">Módulo</h2><p th:text="#{resume.review}">Revise e ajuste as informações reconhecidas.</p></div></div>
+                <textarea th:name="${'section_' + section.key}" rows="6" maxlength="30000" th:text="${section.value}" th:placeholder="${section.value.isBlank() ? #messages.msg('resume.unidentified') : ''}" data-track-dirty></textarea>
+            </article>
+        </section>
+        <div class="section-actions"><a class="button button-quiet" th:href="@{/resumes}" data-cancel-link th:text="#{resume.cancelImport}">Cancelar importação</a><button class="button button-primary" type="submit" th:text="#{resume.saveImported}">Salvar todos os módulos</button></div>
+    </form>
+</main>
+</div>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:lang="${currentAccount != null && currentAccount.language == 'en' ? 'en' : 'pt-BR'}"
+      th:attr="data-theme=${currentAccount != null ? currentAccount.theme : 'light'}"
+      th:fragment="shell(pageTitle, activeItem, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <meta name="description" content="SmartJobs — organização inteligente da sua busca por oportunidades.">
+    <link rel="manifest" th:href="@{/manifest.webmanifest}">
+    <link rel="icon" th:href="@{/images/icon.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}">
+    <link rel="stylesheet" th:href="@{/css/pages.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <title th:text="${pageTitle + ' · SmartJobs'}">SmartJobs</title>
+</head>
+<body th:attr="data-theme=${currentAccount != null ? currentAccount.theme : 'light'}, lang=${currentAccount != null ? currentAccount.language : 'pt'}">
+<div class="app-shell">
+    <aside th:replace="~{fragments/navigation :: sidebar(${activeItem})}"></aside>
+    <div class="workspace">
+        <header th:replace="~{fragments/header :: topbar(${pageTitle})}"></header>
+        <div class="page-content" th:insert="${content}">
+            <p>Conteúdo SmartJobs</p>
+        </div>
+    </div>
+</div>
+<div class="mobile-scrim" data-menu-toggle></div>
+<div th:replace="~{fragments/notifications :: toast(${success}, ${error})}"></div>
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

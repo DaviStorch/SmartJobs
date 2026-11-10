@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language == 'en' ? 'en' : 'pt-BR'}">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <link rel="stylesheet" th:href="@{/css/global.css}"><link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}"><link rel="stylesheet" th:href="@{/css/pages.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <link rel="icon" th:href="@{/images/icon.svg}" type="image/svg+xml"><title th:text="#{auth.loginTitle} + ' · SmartJobs'">Entrar · SmartJobs</title>
+</head>
+<body class="auth-page">
+<main class="auth-layout">
+    <section class="auth-brand-panel">
+        <a class="brand brand-light-text" th:href="@{/}"><span class="brand-mark">S</span><span>smart<span class="brand-light">jobs</span><small>CAREER WORKSPACE</small></span></a>
+        <div class="auth-pitch"><span class="eyebrow" th:text="#{auth.pitchEyebrow}">YOUR NEXT CHAPTER</span><h1 th:utext="#{auth.pitchTitle}">Uma busca de emprego<br>com mais intenção.</h1><p th:text="#{auth.pitchText}">Centralize oportunidades, entenda sua compatibilidade e acompanhe cada passo da sua jornada profissional.</p></div>
+        <div class="auth-footnote" th:text="#{auth.footnote}">Seu espaço pessoal para decisões melhores.</div>
+    </section>
+    <section class="auth-form-panel">
+        <div class="auth-form-wrap">
+            <span class="eyebrow" th:text="#{auth.welcome}">BEM-VINDO DE VOLTA</span><h2 th:text="#{auth.loginHeading}">Acesse sua conta</h2><p class="muted" th:text="#{auth.loginHint}">Entre para continuar sua organização.</p>
+            <div class="alert alert-error" th:if="${param.error}" th:text="#{auth.invalid}">E-mail ou senha inválidos.</div>
+            <div class="alert alert-success" th:if="${param.registered}" th:text="#{auth.registered}">Conta criada. Faça login para continuar.</div>
+            <div class="alert alert-success" th:if="${param.logout}" th:text="#{auth.loggedOut}">Você saiu da sua conta.</div>
+            <form th:action="@{/login}" method="post" class="form-stack">
+                <label for="email" th:text="#{auth.email}">E-mail</label><input id="email" name="email" type="email" autocomplete="email" required autofocus th:placeholder="#{auth.emailPlaceholder}">
+                <label for="password" th:text="#{auth.password}">Senha</label><input id="password" name="password" type="password" autocomplete="current-password" required th:placeholder="#{auth.passwordPlaceholder}">
+                <button class="button button-primary button-wide" type="submit"><span th:text="#{auth.submitLogin}">Entrar</span> <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="auth-switch"><span th:text="#{auth.noAccount}">Ainda não tem uma conta?</span> <a th:href="@{/register}" th:text="#{auth.createAccount}">Criar conta</a></p>
+            <p class="auth-privacy" th:text="#{auth.private}">Seus dados são privados e visíveis apenas para você.</p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

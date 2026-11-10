@@ -1,0 +1,5 @@
+<div th:fragment="toast(success, error)" class="toast-container" th:if="${success != null or error != null}">
+    <div class="toast-message" th:classappend="${error != null ? 'toast-error' : ''}" role="status" aria-live="polite">
+        <span th:text="${success != null ? success : error}">Ação concluída.</span>
+    </div>
+</div>

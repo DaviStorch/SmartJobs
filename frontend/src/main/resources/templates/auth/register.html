@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language == 'en' ? 'en' : 'pt-BR'}">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/global.css}"><link rel="stylesheet" th:href="@{/css/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components.css}"><link rel="stylesheet" th:href="@{/css/pages.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}"><link rel="icon" th:href="@{/images/icon.svg}" type="image/svg+xml">
+    <title th:text="#{auth.registerTitle} + ' · SmartJobs'">Criar conta · SmartJobs</title>
+</head>
+<body class="auth-page">
+<main class="auth-layout">
+    <section class="auth-brand-panel">
+        <a class="brand brand-light-text" th:href="@{/login}"><span class="brand-mark">S</span><span>smart<span class="brand-light">jobs</span><small>CAREER WORKSPACE</small></span></a>
+        <div class="auth-pitch"><span class="eyebrow" th:text="#{auth.pitchEyebrow}">A CLEARER CAREER PATH</span><h1 th:utext="#{auth.pitchTitle}">Seu próximo passo<br>começa com clareza.</h1><p th:text="#{auth.pitchText}">Construa uma rotina de busca que coloca seus objetivos e suas habilidades no centro.</p></div>
+        <div class="auth-footnote" th:text="#{auth.footnote}">Privado por padrão. Criado para você.</div>
+    </section>
+    <section class="auth-form-panel">
+        <div class="auth-form-wrap">
+            <span class="eyebrow" th:text="#{auth.registerEyebrow}">COMECE POR AQUI</span><h2 th:text="#{auth.registerHeading}">Crie sua conta</h2><p class="muted" th:text="#{auth.registerHint}">Seu workspace pessoal, em poucos passos.</p>
+            <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+            <form th:action="@{/register}" th:object="${form}" method="post" class="form-stack">
+                <label for="name" th:text="#{auth.name}">Nome</label><input id="name" th:field="*{name}" autocomplete="name" required maxlength="100"><small class="field-error" th:errors="*{name}"></small>
+                <label for="email" th:text="#{auth.email}">E-mail</label><input id="email" type="email" th:field="*{email}" autocomplete="email" required maxlength="254"><small class="field-error" th:errors="*{email}"></small>
+                <label for="password"><span th:text="#{auth.password}">Senha</span> <span class="label-hint" th:text="#{auth.passwordLength}">mínimo de 10 caracteres</span></label><input id="password" type="password" th:field="*{password}" autocomplete="new-password" required minlength="10" maxlength="72"><small class="field-error" th:errors="*{password}"></small>
+                <label for="confirmPassword" th:text="#{auth.confirmPassword}">Confirme sua senha</label><input id="confirmPassword" type="password" th:field="*{confirmPassword}" autocomplete="new-password" required>
+                <button class="button button-primary button-wide" type="submit"><span th:text="#{auth.submitRegister}">Criar conta</span> <span aria-hidden="true">→</span></button>
+            </form>
+            <p class="auth-switch"><span th:text="#{auth.haveAccount}">Já tem uma conta?</span> <a th:href="@{/login}" th:text="#{auth.submitLogin}">Entrar</a></p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

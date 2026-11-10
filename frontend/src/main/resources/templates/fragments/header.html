@@ -1,0 +1,20 @@
+<header class="topbar" th:fragment="topbar(pageTitle)">
+    <button type="button" class="icon-button menu-button" data-menu-toggle aria-label="Abrir menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="breadcrumb"><span>SmartJobs</span><i>/</i><strong th:text="${pageTitle}">Visão geral</strong></div>
+    <div class="topbar-actions">
+        <form class="preferences" th:action="@{/preferences}" method="post">
+            <label class="sr-only" for="theme-select" th:text="#{common.theme}">Tema</label>
+            <select id="theme-select" name="theme" th:aria-label="#{common.theme}" onchange="this.form.submit()">
+                <option value="light" th:selected="${currentAccount == null || currentAccount.theme == 'light'}">Claro</option>
+                <option value="dark" th:selected="${currentAccount != null && currentAccount.theme == 'dark'}">Escuro</option>
+            </select>
+            <label class="sr-only" for="language-select" th:text="#{common.language}">Idioma</label>
+            <select id="language-select" name="language" th:aria-label="#{common.language}" onchange="this.form.submit()">
+                <option value="pt" th:selected="${currentAccount == null || currentAccount.language == 'pt'}">PT</option>
+                <option value="en" th:selected="${currentAccount != null && currentAccount.language == 'en'}">EN</option>
+            </select>
+        </form>
+        <span class="topbar-date" th:text="${#temporals.format(#temporals.createNow(), 'dd MMM yyyy')}">09 Nov 2026</span>
+        <div class="avatar avatar-small" th:text="${currentAccount != null ? #strings.substring(currentAccount.name, 0, 1).toUpperCase() : 'S'}">S</div>
+    </div>
+</header>

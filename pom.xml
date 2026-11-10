@@ -133,6 +133,38 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>${project.basedir}/backend/src/main/java</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/backend/src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/backend/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/frontend/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/frontend/src/styles</directory>
+                <targetPath>static/css</targetPath>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/frontend/src/scripts</directory>
+                <targetPath>static/js</targetPath>
+                <includes>
+                    <include>app.js</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/frontend/src/scripts</directory>
+                <targetPath>static</targetPath>
+                <includes>
+                    <include>sw.js</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/frontend/src/assets</directory>
+                <targetPath>static</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
