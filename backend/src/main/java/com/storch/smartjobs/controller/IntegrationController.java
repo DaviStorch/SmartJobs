@@ -2,7 +2,7 @@ package com.storch.smartjobs.controller;
 
 import com.storch.smartjobs.integration.gmail.GmailIntegrationException;
 import com.storch.smartjobs.integration.gmail.GmailOAuthService;
-import com.storch.smartjobs.integration.gmail.GmailSyncService;
+import com.storch.smartjobs.integration.gmail.GmailSyncCoordinator;
 import com.storch.smartjobs.service.CurrentUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
@@ -22,13 +22,14 @@ public class IntegrationController {
     private static final String OAUTH_STATE = "gmail.oauth.state";
     private final CurrentUserService currentUser;
     private final GmailOAuthService gmail;
-    private final GmailSyncService sync;
+    private final GmailSyncCoordinator syncCoordinator;
     private final SecureRandom random = new SecureRandom();
 
-    public IntegrationController(CurrentUserService currentUser, GmailOAuthService gmail, GmailSyncService sync) {
+    public IntegrationController(CurrentUserService currentUser, GmailOAuthService gmail,
+                                  GmailSyncCoordinator syncCoordinator) {
         this.currentUser = currentUser;
         this.gmail = gmail;
-        this.sync = sync;
+        this.syncCoordinator = syncCoordinator;
     }
 
     @GetMapping
@@ -79,9 +80,10 @@ public class IntegrationController {
     @PostMapping("/gmail/sync")
     public String synchronize(Authentication authentication, RedirectAttributes redirect) {
         try {
-            var result = sync.synchronize(currentUser.get(authentication));
-            redirect.addFlashAttribute("success", "Sincronização concluída: " + result.imported()
-                    + " importadas, " + result.duplicates() + " duplicadas e " + result.ignored() + " ignoradas.");
+            boolean queued = syncCoordinator.enqueue(currentUser.get(authentication).getId());
+            redirect.addFlashAttribute("success", queued
+                    ? "Sincronização iniciada. Você pode continuar usando o SmartJobs enquanto ela é processada."
+                    : "A sincronização Gmail já está em andamento.");
         } catch (GmailIntegrationException exception) {
             redirect.addFlashAttribute("error", exception.getMessage());
         }

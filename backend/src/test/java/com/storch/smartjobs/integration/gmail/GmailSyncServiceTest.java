@@ -25,10 +25,12 @@ class GmailSyncServiceTest {
         when(user.getId()).thenReturn(7L);
         GmailConnection connection = mock(GmailConnection.class);
         when(connection.getLastSyncedAt()).thenReturn(null);
+        Instant syncStartedAt = Instant.parse("2026-03-04T05:06:07Z");
+        when(connection.getSyncStartedAt()).thenReturn(syncStartedAt);
         when(oauth.accessToken(user)).thenReturn("access-token");
         when(oauth.connection(user)).thenReturn(java.util.Optional.of(connection));
         doReturn(Map.of("messages", List.of(Map.of("id", "message-1"))))
-                .when(oauth).apiGet(contains("maxResults="), eq("access-token"));
+                .when(oauth).apiGet(contains("maxResults="), eq("access-token"), eq(user));
         doReturn(Map.of(
                 "payload", Map.of(
                         "mimeType", "text/plain",
@@ -36,19 +38,19 @@ class GmailSyncServiceTest {
                                 ("Job title: Developer\nCompany: Example Corp\nRequirements:\nJava\nSee this job: https://example.com/jobs/developer")
                                         .getBytes(java.nio.charset.StandardCharsets.UTF_8))),
                         "headers", List.of(Map.of("name", "Subject", "value", "Job alert: Developer")))))
-                .when(oauth).apiGet(contains("message-1?format=full"), eq("access-token"));
+                .when(oauth).apiGet(contains("message-1?format=full"), eq("access-token"), eq(user));
         when(imported.existsByUserIdAndMessageId(7L, "message-1")).thenReturn(false);
         when(jobs.saveImported(eq(user), any())).thenReturn(true);
 
         GmailSyncResult result = new GmailSyncService(oauth, imported, jobs).synchronize(user);
 
-        assertEquals(new GmailSyncResult(1, 1, 0, 0), result);
+        assertEquals(new GmailSyncResult(1, 1, 1, 0, 0), result);
         verify(jobs).saveImported(eq(user), argThat(form -> form.getSource().equals("Gmail")
                 && form.getCompany().equals("Example Corp")
                 && form.getRequirements().contains("Java")
                 && form.getSourceUrl().equals("https://example.com/jobs/developer")));
         verify(imported).save(any());
-        verify(oauth).markSynced(eq(user), any(Instant.class));
+        verify(oauth).markSynced(user, syncStartedAt, result);
     }
 
     @Test
@@ -59,15 +61,16 @@ class GmailSyncServiceTest {
         when(user.getId()).thenReturn(7L);
         GmailConnection connection = mock(GmailConnection.class);
         when(connection.getLastSyncedAt()).thenReturn(null);
+        when(connection.getSyncStartedAt()).thenReturn(null);
         when(oauth.accessToken(user)).thenReturn("token");
         when(oauth.connection(user)).thenReturn(java.util.Optional.of(connection));
         doReturn(Map.of("messages", List.of(Map.of("id", "seen"))))
-                .when(oauth).apiGet(contains("maxResults="), eq("token"));
+                .when(oauth).apiGet(contains("maxResults="), eq("token"), eq(user));
         when(imported.existsByUserIdAndMessageId(7L, "seen")).thenReturn(true);
 
         GmailSyncResult result = new GmailSyncService(oauth, imported, mock(JobService.class)).synchronize(user);
 
         assertEquals(0, result.scanned());
-        verify(oauth, times(1)).apiGet(contains("maxResults="), eq("token"));
+        verify(oauth, times(1)).apiGet(contains("maxResults="), eq("token"), eq(user));
     }
 }

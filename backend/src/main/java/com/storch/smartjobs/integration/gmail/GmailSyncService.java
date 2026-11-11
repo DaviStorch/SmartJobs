@@ -30,19 +30,21 @@ public class GmailSyncService {
     public GmailSyncResult synchronize(AppUser user) {
         String accessToken = oauth.accessToken(user);
         Instant syncStarted = Instant.now();
-        Instant lastSync = oauth.connection(user).orElseThrow().getLastSyncedAt();
+        var connection = oauth.connection(user).orElseThrow();
+        Instant syncWatermark = connection.getSyncStartedAt() == null ? syncStarted : connection.getSyncStartedAt();
+        Instant lastSync = connection.getLastSyncedAt();
         String query = lastSync == null
                 ? "newer_than:30d {subject:job subject:jobs subject:employment subject:emprego subject:vaga subject:opportunity subject:career}"
                 : "after:" + lastSync.getEpochSecond()
                 + " {subject:job subject:jobs subject:employment subject:emprego subject:vaga subject:opportunity subject:career}";
-        List<String> ids = listMessageIds(accessToken, query);
+        List<String> ids = listMessageIds(accessToken, query, user);
         int imported = 0;
         int duplicates = 0;
         int ignored = 0;
         int scanned = 0;
         for (String id : ids) {
             if (importedMessages.existsByUserIdAndMessageId(user.getId(), id)) continue;
-            Map<?, ?> message = oauth.apiGet(MESSAGE_LIST_URL + "/" + enc(id) + "?format=full", accessToken);
+            Map<?, ?> message = oauth.apiGet(MESSAGE_LIST_URL + "/" + enc(id) + "?format=full", accessToken, user);
             String subject = parser.findSubject(message);
             String body = parser.extractBody(map(message.get("payload")));
             scanned++;
@@ -68,17 +70,18 @@ public class GmailSyncService {
             if (saved) imported++;
             else duplicates++;
         }
-        oauth.markSynced(user, syncStarted);
-        return new GmailSyncResult(scanned, imported, duplicates, ignored);
+        GmailSyncResult result = new GmailSyncResult(scanned, ids.size(), imported, duplicates, ignored);
+        oauth.markSynced(user, syncWatermark, result);
+        return result;
     }
 
-    private List<String> listMessageIds(String accessToken, String query) {
+    private List<String> listMessageIds(String accessToken, String query, AppUser user) {
         List<String> ids = new ArrayList<>();
         String pageToken = null;
         while (ids.size() < MAX_MESSAGES_PER_SYNC) {
             String uri = MESSAGE_LIST_URL + "?maxResults=" + Math.min(25, MAX_MESSAGES_PER_SYNC - ids.size())
                     + "&q=" + enc(query) + (pageToken == null ? "" : "&pageToken=" + enc(pageToken));
-            Map<?, ?> response = oauth.apiGet(uri, accessToken);
+            Map<?, ?> response = oauth.apiGet(uri, accessToken, user);
             Object messages = response.get("messages");
             if (!(messages instanceof List<?> list) || list.isEmpty()) break;
             for (Object value : list) {
